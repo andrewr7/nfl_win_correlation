@@ -90,8 +90,8 @@ for index, row in df.iterrows():
 # splits = [1984, 1987, 1990, 1993, 1996, 1999, 2002, 2005, 2008, 2011, 2014, 2017, 2020, 2024] #3 year splits
 # splits = [1984, 1989, 1994, 1999, 2004, 2009, 2014, 2019, 2024] #5 year splits
 # splits = [1984, 1994, 2004, 2014, 2024] #10 year splits
-splits = [1984, 2004, 2024] #20 year splits
-# splits = [1984,2024] #40 year splits (entire span of data)
+# splits = [1984, 2004, 2024] #20 year splits
+splits = [1984,2024] #40 year splits (entire span of data)
 
 splits_folder = f"{plot_folder}/split_range_{splits[1]-splits[0]}_years"
 if not os.path.exists(splits_folder):
@@ -192,7 +192,7 @@ for split_idx in range(len(splits)):
                 print("Pearson's r:", r)
                 print("p-value:", p_value)
 
-            ax.scatter(x_arr,y_arr, marker='o')
+            ax.scatter(x_arr,y_arr, marker='o', alpha=0.1)
             correlation = np.correlate(x_arr, y_arr)
             ax.set_xlabel(x_name)
             ax.set_ylabel(y_name)
@@ -200,7 +200,7 @@ for split_idx in range(len(splits)):
             if first_year <= 2020 and last_year >= 2020:
                 title_first_line += ' (excluding 2020)'
             whole_title = title_first_line + '\nCorrelation: ' + r"$\bf{{{x}}}$".format(x={round(correlation_matrix[x_data_idx,y_data_idx],4)})
-            whole_title = whole_title + '\np-value: ' + r"$\bf{{{x}}}$".format(x={round(p_value,5)})
+            whole_title = whole_title + '. p-value: ' + r"$\bf{{{:.2e}}}$".format(p_value)
             ax.set_title(whole_title)
             if "Win%" in y_name:
                 ax.yaxis.set_major_locator(MultipleLocator(0.25))
