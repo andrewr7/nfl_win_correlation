@@ -16,6 +16,7 @@ from scipy import stats
 from scipy.signal import savgol_filter
 from scipy.ndimage import gaussian_filter1d
 import statsmodels.api as sm
+from scipy.stats import pearsonr
 
 np.set_printoptions(precision=5, suppress=True)
 
@@ -86,9 +87,10 @@ for index, row in df.iterrows():
 ## uncomment the split you're interested in
 # splits = np.arange(1984,2024) #1 year splits
 # splits = [1984, 1986, 1988, 1990, 1992, 1994, 1996, 1998, 2000, 2002, 2004, 2006, 2008, 2010, 2012, 2014, 2016, 2018, 2020, 2022, 2024] #2 year splits
-splits = [1984, 1987, 1990, 1993, 1996, 1999, 2002, 2005, 2008, 2011, 2014, 2017, 2020, 2024] #3 year splits
+# splits = [1984, 1987, 1990, 1993, 1996, 1999, 2002, 2005, 2008, 2011, 2014, 2017, 2020, 2024] #3 year splits
 # splits = [1984, 1989, 1994, 1999, 2004, 2009, 2014, 2019, 2024] #5 year splits
 # splits = [1984, 1994, 2004, 2014, 2024] #10 year splits
+splits = [1984, 2004, 2024] #20 year splits
 # splits = [1984,2024] #40 year splits (entire span of data)
 
 splits_folder = f"{plot_folder}/split_range_{splits[1]-splits[0]}_years"
@@ -184,6 +186,12 @@ for split_idx in range(len(splits)):
             x_arr = data_array[x_data_idx,:]
             y_arr = data_array[y_data_idx,:]
 
+            r, p_value = pearsonr(x_arr, y_arr)
+            if "Win" in y_name and ("Win" in x_name or "Diff" in x_name):
+                print(f"{x_name} vs {y_name}")
+                print("Pearson's r:", r)
+                print("p-value:", p_value)
+
             ax.scatter(x_arr,y_arr, marker='o')
             correlation = np.correlate(x_arr, y_arr)
             ax.set_xlabel(x_name)
@@ -192,6 +200,7 @@ for split_idx in range(len(splits)):
             if first_year <= 2020 and last_year >= 2020:
                 title_first_line += ' (excluding 2020)'
             whole_title = title_first_line + '\nCorrelation: ' + r"$\bf{{{x}}}$".format(x={round(correlation_matrix[x_data_idx,y_data_idx],4)})
+            whole_title = whole_title + '\np-value: ' + r"$\bf{{{x}}}$".format(x={round(p_value,5)})
             ax.set_title(whole_title)
             if "Win%" in y_name:
                 ax.yaxis.set_major_locator(MultipleLocator(0.25))
@@ -204,7 +213,6 @@ for split_idx in range(len(splits)):
             fig.savefig(f'{splits_folder}/{x_name} v {y_name} {first_year}-{last_year}.png', format='png')
             # plt.show() #if you want to see each plot before its erased uncomment this
             plt.close('all')
-
 
 
 # Compute the moving average
